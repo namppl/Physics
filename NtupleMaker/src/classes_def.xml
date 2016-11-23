@@ -1,0 +1,14 @@
+<lcgdict>
+    <class name="NtupleTrigger" />
+    <class name="NtupleTriggerObject" />
+    <class name="NtupleMuon" />
+    <class name="NtupleElectron" />
+    <class name="NtupleDimuon" />
+    <class name="NtupleDielectron" />
+    <class name="NtupleEmu" />
+    <class name="NtupleGenParticle" />
+    <class name="NtuplePhoton" />
+    <class name="NtupleJet" />
+    <class name="NtupleMET" />
+    <class name="NtupleEvent" />
+</lcgdict>

@@ -1,0 +1,7 @@
+<lcgdict>
+	<class name="EventSelector" />
+	<class name="MuonSelector" />
+	<class name="ElectronSelector" />
+	<class name="PhotonSelector" />
+	<class name="TreeFiller" />
+</lcgdict>

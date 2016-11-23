@@ -1,0 +1,9 @@
+<use name="root"/>
+<use name="rootminuit"/>
+<use name="clhep"/>
+<use name="rootrflx"/>
+<use name="rootmath"/>
+<export>
+   <lib name="1"/>
+</export>
+
