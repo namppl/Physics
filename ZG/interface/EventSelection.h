@@ -15,9 +15,12 @@ public:
 	int lumi;
 	UInt_t eventNum;
 	double weight;
+	double genWeight;
 	int nPU;
 	int nVert;
 	double genMass;
+	std::vector<NtupleGenParticle*> genLept;
+	NtupleGenParticle* genPho;
 	TString channel;
 	const bool verbose;
 	const double dilepton_mass_lower;

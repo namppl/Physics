@@ -9,6 +9,7 @@ public:
 	TreeFiller(){}
 	void setTree(TTree* _recoTree, TTree* _genTree);
 	void fillVariables(EventSelector& selector);
+	void fillGenVariables(EventSelector& selector);
 	TTree* recoTree;
 	TTree* genTree;
 	
@@ -81,6 +82,30 @@ public:
 	double boss_eta;
 	double boss_phi;
 	double boss_mass;
+
+	double gen_weight;
+	int gen_leptType;
+
+	double gen_lept0_pt;
+	double gen_lept0_eta;
+	double gen_lept0_phi;
+	double gen_lept1_pt;
+	double gen_lept1_eta;
+	double gen_lept1_phi;
+
+	double gen_gamma_pt;
+	double gen_gamma_eta;
+	double gen_gamma_phi;
+
+	double gen_z_pt;
+	double gen_z_eta;
+	double gen_z_phi;
+	double gen_z_mass;
+
+	double gen_boss_pt;
+	double gen_boss_eta;
+	double gen_boss_phi;
+	double gen_boss_mass;
 };
 
 #endif

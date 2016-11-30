@@ -1,5 +1,6 @@
 #include "Physics/ZG/interface/ZGTree.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include <iostream>
 #include <assert.h>
 
 void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
@@ -78,7 +79,25 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 	recoTree->Branch("boss_mass",&boss_mass);
 
 	genTree->Branch("genmass",&genmass);
-	genTree->Branch("weight",&weight);
+	genTree->Branch("gen_weight",&gen_weight);
+	genTree->Branch("gen_leptType",&gen_leptType);
+	genTree->Branch("gen_lept0_pt",&gen_lept0_pt);
+	genTree->Branch("gen_lept0_eta",&gen_lept0_eta);
+	genTree->Branch("gen_lept0_phi",&gen_lept0_phi);
+	genTree->Branch("gen_lept1_pt",&gen_lept1_pt);
+	genTree->Branch("gen_lept1_eta",&gen_lept1_eta);
+	genTree->Branch("gen_lept1_phi",&gen_lept1_phi);
+	genTree->Branch("gen_gamma_pt",&gen_gamma_pt);
+	genTree->Branch("gen_gamma_eta",&gen_gamma_eta);
+	genTree->Branch("gen_gamma_phi",&gen_gamma_phi);
+	genTree->Branch("gen_z_pt",&gen_z_pt);
+	genTree->Branch("gen_z_eta",&gen_z_eta);
+	genTree->Branch("gen_z_phi",&gen_z_phi);
+	genTree->Branch("gen_z_mass",&gen_z_mass);
+	genTree->Branch("gen_boss_pt",&gen_boss_pt);
+	genTree->Branch("gen_boss_eta",&gen_boss_eta);
+	genTree->Branch("gen_boss_phi",&gen_boss_phi);
+	genTree->Branch("gen_boss_mass",&gen_boss_mass);
 
 }
 
@@ -213,4 +232,47 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 
 		recoTree->Fill();
 	}
+}
+
+void TreeFiller::fillGenVariables(EventSelector& selector) {
+	gen_weight = selector.genWeight;	
+	genmass = selector.genMass;
+	const NtupleGenParticle& lept0{*selector.genLept[0]};
+	const NtupleGenParticle& lept1{*selector.genLept[1]};
+	const NtupleGenParticle& gamma{*selector.genPho};
+
+	gen_leptType = fabs(lept0.id);
+	std::cout << lept0.id << ":" << lept1.id << std::endl;
+	assert(gen_leptType==fabs(lept1.id));
+
+	gen_lept0_pt = lept0.pt;
+	gen_lept0_eta = lept0.eta;
+	gen_lept0_phi = lept0.phi;
+	gen_lept1_pt = lept1.pt;
+	gen_lept1_eta = lept1.eta;
+	gen_lept1_phi = lept1.phi;
+	gen_gamma_pt = gamma.pt;
+	gen_gamma_eta = gamma.eta;
+	gen_gamma_phi = gamma.phi;
+
+	TLorentzVector lept0_mom;
+	TLorentzVector lept1_mom;
+	TLorentzVector gamma_mom;
+	lept0_mom.SetPtEtaPhiM(gen_lept0_pt,gen_lept0_eta,gen_lept0_phi,lept0.mass);
+	lept0_mom.SetPtEtaPhiM(gen_lept0_pt,gen_lept0_eta,gen_lept0_phi,lept0.mass);
+	gamma_mom.SetPtEtaPhiM(gen_gamma_pt,gen_gamma_eta,gen_gamma_phi,0);
+
+	TLorentzVector z = (lept0_mom + lept1_mom);
+	TLorentzVector boss = (lept0_mom + lept1_mom + gamma_mom);
+	
+	gen_z_pt = z.Pt();
+	gen_z_eta = z.Eta();
+	gen_z_phi = z.Phi();
+	gen_z_mass = z.M(); 
+
+	gen_boss_pt = boss.Pt();
+	gen_boss_eta = boss.Eta();
+	gen_boss_phi = boss.Phi();
+	gen_boss_mass = boss.M(); 
+	genTree->Fill();
 }

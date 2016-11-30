@@ -89,23 +89,31 @@ bool EventSelector::isTriggered( const TString& triggerName ) {
 }
 
 void EventSelector::setGenMass() {
+	genWeight = event->weight;
 	TLorentzVector mom_system;
 	int nGenEl = 0;
 	int nGenMu = 0;
 	int nGenPho = 0;
+
+	genLept.clear();
+	genPho = nullptr;
+
 	for( auto& par : event->genparticles ) {
 		//if( par.fromHardProcessFinalState ) {
 		if( par.isHardProcess ) {
 			TLorentzVector mom;
 			if( fabs(par.id) == 11 ) {
+				genLept.push_back(&par);
 				mom.SetPtEtaPhiM(par.pt, par.eta, par.phi, electron_mass);
 				++nGenEl;
 			}
 			else if( fabs(par.id) == 13 ) {
+				genLept.push_back(&par);
 				mom.SetPtEtaPhiM(par.pt, par.eta, par.phi, muon_mass);
 				++nGenMu;
 			}
 			else if( fabs(par.id) == 22 ) {
+				genPho = &par;
 				mom.SetPtEtaPhiM(par.pt, par.eta, par.phi, 0.);
 				++nGenPho;
 			}

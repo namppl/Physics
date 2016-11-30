@@ -145,7 +145,7 @@ template<class T> bool acceptance(const T& particle, const double& ptCut, const 
 }
 
 template<class T> bool excludeECALGap(const T& particle) {
-	return ( fabs(particle.eta) < 1.4442 || fabs(particle.eta) > 1.566 );
+	return ( fabs(particle.etaSC) < 1.4442 || fabs(particle.etaSC) > 1.566 );
 }
 
 template<class T> bool miniIsolation(const T& particle, const double& iso) {
