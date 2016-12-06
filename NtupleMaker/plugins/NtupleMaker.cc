@@ -397,7 +397,7 @@ void NtupleMaker::fillTriggers(const edm::Event &iEvent) {
         "HLT_Ele22_eta2p1_WP75_Gsf_v*",
         "HLT_Ele22_eta2p1_WPLoose_Gsf_v*",
         "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*",*/
-		"Mu", "Ele", "Jet", "MET"
+		"Mu", "Ele", "Photon", "Jet", "MET"
     };
 
     cout<<"HLT"<<endl;
@@ -639,13 +639,13 @@ void NtupleMaker::fillMuons(const edm::Event& iEvent) {
         mu_.PfGammaIsoR03         = mu->pfIsolationR03().sumPhotonEt;
         mu_.PfPUPtR03             = mu->pfIsolationR03().sumPUPt;
 
-        //mu_.miniIsoRel = getPFIsolationEA(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, false);
-        mu_.miniIso = getPFIsolationEA(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, true);
+        mu_.miniIsoRel = getPFIsolationEA(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, false);
+        mu_.miniIsoAbs = getPFIsolationEA(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, true);
         mu_.miniIsoCh = getPFIsolationEAComponent(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, 0);
         mu_.miniIsoPh = getPFIsolationEAComponent(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, 1);
         mu_.miniIsoNh = getPFIsolationEAComponent(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, 2);
         mu_.miniIsoRho = getPFIsolationEAComponent(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, 3);
-        //mu_.miniIsoPt = getPFIsolationEAComponent(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, 4);
+        mu_.miniIsoPt = getPFIsolationEAComponent(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, 4);
 
         event_.muons.push_back(mu_);
     }
@@ -797,9 +797,9 @@ void NtupleMaker::fillElectrons(const edm::Event& iEvent) {
         el_.eleEcalDrivenSeed =el->ecalDrivenSeed();
         //cout<<"ECAL driven: "<<el->ecalDrivenSeed()<<endl;
 
-        //el_.miniIsoRel = getPFIsolationEA(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, false);
-        el_.miniIso = getPFIsolationEA(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, true);
-        //el_.miniIsoPt = getPFIsolationEAComponent(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, 4);
+        el_.miniIsoRel = getPFIsolationEA(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, false);
+        el_.miniIsoAbs = getPFIsolationEA(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, true);
+        el_.miniIsoPt = getPFIsolationEAComponent(pfcands, dynamic_cast<const reco::Candidate *>(&lep), 0.05, 0.2, 10., false, *miniRhoH, 4);
 
         event_.electrons.push_back(el_);
     }

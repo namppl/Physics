@@ -15,8 +15,8 @@ bool trackerIsolation(const NtupleMuon& mu, const double& iso);
 bool looseMuonID(const NtupleMuon& mu, const bool& isZG);
 bool tightMuonID(const NtupleMuon& mu);
 bool highPtMuonID(const NtupleMuon& mu);
-bool WPLoose(const NtupleElectron& el, const bool& isZG);
-bool WPLoose(const NtuplePhoton& pho, const bool& isZG);
+bool cutBasedWPLoose(const NtupleElectron& el, const bool& isZG);
+bool cutBasedWPLoose(const NtuplePhoton& pho, const bool& isZG);
 
 class Selector {
 protected:
@@ -44,7 +44,10 @@ protected:
 public:
 	MuonSelector();
 	MuonSelector(const double& _ptCut, const double& _etaCut, const double& _extraPtCut, const double& _vetoPtCut);
-	bool select(const std::vector<NtupleMuon>& candidates);
+	bool selectICHEP16(const std::vector<NtupleMuon>& candidates);
+	bool selectMoriond17(const std::vector<NtupleMuon>& candidates);
+	void boostedTrackerIsolation(const std::vector<NtupleMuon>& candidates);
+	bool finalMuonSelection();
 	const NtupleMuon& at(int i) const;
 	int nMuons();
 };
@@ -67,6 +70,8 @@ public:
 	PhotonSelector();
 	PhotonSelector(const double& _ptCut, const double& _etaCut);
 	bool select(const std::vector<NtuplePhoton>& candidates);
+	bool select(const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1);
+	bool select(const std::vector<NtuplePhoton>& candidates, const NtupleMuon& mu0, const NtupleMuon& mu1);
 	const NtuplePhoton& at(int i) const;
 	int nPhotons();
 };

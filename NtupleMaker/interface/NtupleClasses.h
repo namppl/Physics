@@ -1,5 +1,5 @@
-#ifndef NtupleClasses_H
-#define NtupleClasses_H
+#ifndef NtupleMaker_H
+#define NtupleMaker_H
 
 #include <vector>
 #include <string>
@@ -112,11 +112,13 @@ public:
 
 
     // muon isolation
-    double miniIso;
+    double miniIsoRel;
+    double miniIsoAbs;
     double miniIsoCh;
     double miniIsoPh;
     double miniIsoNh;
     double miniIsoRho;
+    double miniIsoPt;
     double isolationR03_sumpt;
     double isolationR03_hadEt;
     double isolationR03_emEt;
@@ -202,7 +204,9 @@ public:
     double mvaValue;
     int mvaCategory;
 
-    double miniIso;
+    double miniIsoRel;
+    double miniIsoAbs;
+    double miniIsoPt;
 
     NtupleElectron(){};
     virtual ~NtupleElectron(){};

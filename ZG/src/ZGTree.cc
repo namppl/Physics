@@ -103,7 +103,7 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 
 void TreeFiller::fillVariables(EventSelector& selector) {
 
-	assert(selector.muon||selector.electron);
+	assert(selector.electron||selector.muon);
 
 	run = selector.run;
 	lumi = selector.lumi;
@@ -112,71 +112,13 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 	nPU = selector.nPU;
 	nVert = selector.nVert;
 
-	if( selector.muon ) {
-		leptType = 13;
-
-		bool leading = ( selector.mm->at(0).pt > selector.mm->at(1).pt );
-		const NtupleMuon& mu1 = ( leading ) ? selector.mm->at(0) : selector.mm->at(1);
-		const NtupleMuon& mu2 = ( leading ) ? selector.mm->at(1) : selector.mm->at(0);
-		const NtuplePhoton& pho = selector.gamma->at(0);
-		
-		TLorentzVector z = momentum(mu1,muon_mass) + momentum(mu2,muon_mass);
-		TLorentzVector boss = momentum(mu1,muon_mass) + momentum(mu2,muon_mass) + momentum(pho,0.);
-
-		lept0_pt  = mu1.pt;
-		lept0_eta = mu1.eta;
-		lept0_phi = mu1.phi;
-		lept0_miniRelIso = mu1.miniIso/mu1.pt;
-		lept0_pdgId = 13*mu1.charge;
-		lept0_normalizedChi2 = mu1.normalizedChi2;
-		lept0_nValidMuonHits = mu1.nValidMuonHits;
-		lept0_nMatchedStations = mu1.nMatchedStations;
-		lept0_nValidPixelHits = mu1.nValidPixelHits;
-		lept0_nTrackerLayers = mu1.nTrackerLayers;
-		lept0_muonBestTrack_dxyVTX = mu1.dxyVTX;
-		lept0_muonBestTrack_dzVTX = mu1.dzVTX;
-
-		lept1_pt  = mu2.pt;
-		lept1_eta = mu2.eta;
-		lept1_phi = mu2.phi;
-		lept1_miniRelIso = mu2.miniIso/mu2.pt;
-		lept1_pdgId = 13*mu2.charge;
-		lept1_normalizedChi2 = mu2.normalizedChi2;
-		lept1_nValidMuonHits = mu2.nValidMuonHits;
-		lept1_nMatchedStations = mu2.nMatchedStations;
-		lept1_nValidPixelHits = mu2.nValidPixelHits;
-		lept1_nTrackerLayers = mu2.nTrackerLayers;
-		lept1_muonBestTrack_dxyVTX = mu2.dxyVTX;
-		lept1_muonBestTrack_dzVTX = mu2.dzVTX;
-
-		deltaR_lept = deltaR(mu1.eta,mu1.phi,mu2.eta,mu2.phi); 
-
-		gamma_pt = pho.pt;
-		gamma_eta = pho.eta;
-		gamma_phi = pho.phi;
-		gamma_iso = pho.ChIso;
-		gamma_HoverE = pho.HoverE;
-		gamma_Full5x5_SigmaIEtaIEta = pho.Full5x5_SigmaIEtaIEta;
-
-		z_pt = z.Pt();
-		z_eta = z.Eta();
-		z_phi = z.Phi();
-		z_mass = z.M(); 
-
-		boss_pt = boss.Pt();
-		boss_eta = boss.Eta();
-		boss_phi = boss.Phi();
-		boss_mass = boss.M(); 
-
-		recoTree->Fill();
-	}
-	else {
+	if(selector.electron) {
 		leptType = 11;
 
 		bool leading = ( selector.ee->at(0).pt > selector.ee->at(1).pt );
 		const NtupleElectron& el1 = ( leading ) ? selector.ee->at(0) : selector.ee->at(1);
 		const NtupleElectron& el2 = ( leading ) ? selector.ee->at(1) : selector.ee->at(0);
-		const NtuplePhoton& pho = selector.gamma->at(0);
+		const NtuplePhoton& pho = selector.gamma_ee->at(0);
 		
 		TLorentzVector z = momentum(el1,electron_mass) + momentum(el2,electron_mass);
 		TLorentzVector boss = momentum(el1,electron_mass) + momentum(el2,electron_mass) + momentum(pho,0.);
@@ -184,7 +126,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept0_pt  = el1.pt;
 		lept0_eta = el1.eta;
 		lept0_phi = el1.phi;
-		lept0_miniRelIso = el1.miniIso/el1.pt;
+		lept0_miniRelIso = el1.miniIsoAbs/el1.pt;
 		lept0_pdgId = 11*el1.charge;
 
 		lept0_sigmaIetaIeta = el1.sigmaIetaIeta;
@@ -199,7 +141,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept1_pt  = el2.pt;
 		lept1_eta = el2.eta;
 		lept1_phi = el2.phi;
-		lept1_miniRelIso = el2.miniIso/el2.pt;
+		lept1_miniRelIso = el2.miniIsoAbs/el2.pt;
 		lept1_pdgId = 11*el2.charge;
 
 		lept1_sigmaIetaIeta = el2.sigmaIetaIeta;
@@ -232,6 +174,65 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 
 		recoTree->Fill();
 	}
+	else {
+		leptType = 13;
+
+		bool leading = ( selector.mm->at(0).pt > selector.mm->at(1).pt );
+		const NtupleMuon& mu1 = ( leading ) ? selector.mm->at(0) : selector.mm->at(1);
+		const NtupleMuon& mu2 = ( leading ) ? selector.mm->at(1) : selector.mm->at(0);
+		const NtuplePhoton& pho = selector.gamma_mm->at(0);
+		
+		TLorentzVector z = momentum(mu1,muon_mass) + momentum(mu2,muon_mass);
+		TLorentzVector boss = momentum(mu1,muon_mass) + momentum(mu2,muon_mass) + momentum(pho,0.);
+
+		lept0_pt  = mu1.pt;
+		lept0_eta = mu1.eta;
+		lept0_phi = mu1.phi;
+		lept0_miniRelIso = mu1.miniIsoAbs/mu1.pt;
+		lept0_pdgId = 13*mu1.charge;
+		lept0_normalizedChi2 = mu1.normalizedChi2;
+		lept0_nValidMuonHits = mu1.nValidMuonHits;
+		lept0_nMatchedStations = mu1.nMatchedStations;
+		lept0_nValidPixelHits = mu1.nValidPixelHits;
+		lept0_nTrackerLayers = mu1.nTrackerLayers;
+		lept0_muonBestTrack_dxyVTX = mu1.dxyVTX;
+		lept0_muonBestTrack_dzVTX = mu1.dzVTX;
+
+		lept1_pt  = mu2.pt;
+		lept1_eta = mu2.eta;
+		lept1_phi = mu2.phi;
+		lept1_miniRelIso = mu2.miniIsoAbs/mu2.pt;
+		lept1_pdgId = 13*mu2.charge;
+		lept1_normalizedChi2 = mu2.normalizedChi2;
+		lept1_nValidMuonHits = mu2.nValidMuonHits;
+		lept1_nMatchedStations = mu2.nMatchedStations;
+		lept1_nValidPixelHits = mu2.nValidPixelHits;
+		lept1_nTrackerLayers = mu2.nTrackerLayers;
+		lept1_muonBestTrack_dxyVTX = mu2.dxyVTX;
+		lept1_muonBestTrack_dzVTX = mu2.dzVTX;
+
+		deltaR_lept = deltaR(mu1.eta,mu1.phi,mu2.eta,mu2.phi); 
+
+		gamma_pt = pho.pt;
+		gamma_eta = pho.eta;
+		gamma_phi = pho.phi;
+		gamma_iso = pho.ChIso;
+		gamma_HoverE = pho.HoverE;
+		gamma_Full5x5_SigmaIEtaIEta = pho.Full5x5_SigmaIEtaIEta;
+
+		z_pt = z.Pt();
+		z_eta = z.Eta();
+		z_phi = z.Phi();
+		z_mass = z.M(); 
+
+		boss_pt = boss.Pt();
+		boss_eta = boss.Eta();
+		boss_phi = boss.Phi();
+		boss_mass = boss.M(); 
+
+		recoTree->Fill();
+	}
+
 }
 
 void TreeFiller::fillGenVariables(EventSelector& selector) {
@@ -242,7 +243,7 @@ void TreeFiller::fillGenVariables(EventSelector& selector) {
 	const NtupleGenParticle& gamma{*selector.genPho};
 
 	gen_leptType = fabs(lept0.id);
-	std::cout << lept0.id << ":" << lept1.id << std::endl;
+	//std::cout << lept0.id << ":" << lept1.id << std::endl;
 	assert(gen_leptType==fabs(lept1.id));
 
 	gen_lept0_pt = lept0.pt;

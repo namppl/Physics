@@ -5,12 +5,16 @@
 class EventSelector {
 public:
 	EventSelector( const bool& _verbose );
-	EventSelector( const bool& _verbose, const double& mu_pt_cut1, const double& mu_pt_cut2, const double& mu_pt_veto, const double& el_pt_cut1, const double& el_pt_cut2, const double& el_pt_veto, const double& pho_pt_cut, const double& _dilepton_mass_lower, const double& _dilepton_mass_upper, const double& _pho_pt_over_mass );
+	EventSelector( const bool& _verbose, const double& _elPtCut, const double& _elExtraPtCut, const double& _elVetoPtCut, const double& _phoPtCut_ee, const double& _muPtCut, const double& _muExtraPtCut, const double& _muVetoPtCut, const double& _phoPtCut_mm, const double& _lowerMassCut, const double& _upperMassCut, const double& _phoPtOverMZG, const bool& _multiPho );
 	~EventSelector();
 	void setEvent( NtupleEvent* _event );
-	void select();
+	void selectICHEP16();
+	void selectMoriond17();
+	void selectDimuGamma();
+	void selectDielGamma();
 	bool isTriggered( const TString& triggerName );
 	void setGenMass();
+	bool matchedAcceptance();
 	int run;
 	int lumi;
 	UInt_t eventNum;
@@ -22,16 +26,27 @@ public:
 	std::vector<NtupleGenParticle*> genLept;
 	NtupleGenParticle* genPho;
 	TString channel;
-	const bool verbose;
-	const double dilepton_mass_lower;
-	const double dilepton_mass_upper;
-	const double pho_pt_over_mass;
 	NtupleEvent* event;
-	MuonSelector* mm;
 	ElectronSelector* ee;
-	PhotonSelector* gamma;
+	MuonSelector* mm;
+	PhotonSelector* gamma_ee;
+	PhotonSelector* gamma_mm;
 	bool muon;
 	bool electron;
+	bool accepted;
+	const bool verbose;
+	const double elPtCut;
+	const double elExtraPtCut;
+	const double elVetoPtCut;
+	const double phoPtCut_ee;
+	const double muPtCut;
+	const double muExtraPtCut;
+	const double muVetoPtCut;
+	const double phoPtCut_mm;
+	const double lowerMassCut;
+	const double upperMassCut;
+	const double phoPtOverMZG;
+	const bool multiPho;
 
 };
 

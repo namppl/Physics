@@ -1,6 +1,8 @@
-#include <vector>
-#include <iostream>
 #include "Physics/ZG/interface/StandardSelection.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include <assert.h>
+#include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -23,7 +25,7 @@ LeptonSelector( _ptCut, _etaCut, _extraPtCut, _vetoPtCut )
 	std::cout << "muon eta restriction: " << etaCut << std::endl;
 }
 
-bool MuonSelector::select( const std::vector<NtupleMuon>& candidates ) {
+bool MuonSelector::selectICHEP16( const std::vector<NtupleMuon>& candidates ) {
 
 	bool leadingMu = false, tightMu = false;
 	selected.clear();
@@ -43,6 +45,126 @@ bool MuonSelector::select( const std::vector<NtupleMuon>& candidates ) {
 	return pass;
 
 }
+
+bool MuonSelector::selectMoriond17( const std::vector<NtupleMuon>& candidates ) {
+
+	selected.clear();
+	boostedTrackerIsolation(candidates);
+	// for(auto& mu:candidates) {
+	// 	if( miniIsolation(mu,0.2) ) selected.push_back(&mu);
+	// }
+	std::vector<const NtupleMuon*> passed;
+	bool leadingMu = false, highPt = false;
+	int extraPt = 0;
+	for( auto& mu : selected ) {
+		if( acceptance(*mu,vetoPtCut,etaCut) && (looseMuonID(*mu,true)||highPtMuonID(*mu)) ) {
+		// if( acceptance(*mu,vetoPtCut,etaCut) && looseMuonID(*mu,true) ) {
+			passed.push_back(mu);
+			if(mu->pt > extraPtCut) {
+				++extraPt;
+				if(mu->pt > ptCut) leadingMu = true;
+				if(highPtMuonID(*mu)) highPt = true;
+			}
+		}
+	} 
+
+	selected = passed;
+	pass = (selected.size()==2 && extraPt==2 && leadingMu && highPt);
+
+	return pass;
+
+	// selected.clear();
+
+	// for( auto& mu : candidates ) {
+	// 	if( acceptance(mu,vetoPtCut,etaCut) && (looseMuonID(mu,true)||highPtMuonID(mu)) ) selected.push_back(&mu);
+	// } 
+
+	// pass = (selected.size() > 1);
+	// if(pass) pass = boostedTrackerIsolation();
+	// if(pass) pass = finalMuonSelection();
+
+	// return pass;
+
+}
+
+void MuonSelector::boostedTrackerIsolation( const std::vector<NtupleMuon>& candidates ) {
+	selected.clear();
+	for( unsigned i = 0; i < candidates.size(); ++i ) {
+		if( trackerIsolation(candidates[i],0.1) ) selected.push_back(&candidates[i]);
+		else {
+			double iso = candidates[i].isolationR03_sumpt;
+			for( unsigned j = 0; j < candidates.size(); ++j ) {
+				if(i==j) continue;
+				if( deltaR(candidates[i].eta,candidates[i].phi,candidates[j].eta,candidates[j].phi) < 0.3 ) {
+					iso -= candidates[j].innerTrack_pt;
+				}
+			}
+			if( iso/candidates[i].pt < 0.1 ) selected.push_back(&candidates[i]);
+		}
+	}
+}
+
+// bool MuonSelector::boostedTrackerIsolation() {
+
+// 	std::pair<const NtupleMuon*, const NtupleMuon*> cands{nullptr, nullptr};
+
+// 	std::cout << "### ordering by pt ###" << std::endl;
+// 	double leading = 0., trailing = 0.;
+// 	for(auto& mu : selected) {
+// 		std::cout << mu->pt << std::endl;
+// 		if(mu->pt > leading) {
+// 			leading = mu->pt;
+// 			cands.second = cands.first;
+// 			cands.first = mu;
+// 		}
+// 		else if(mu->pt > trailing) {
+// 			trailing = mu->pt;
+// 			cands.second = mu;
+// 		}
+// 	}
+
+// 	assert(cands.first!=nullptr&&cands.second!=nullptr);
+
+// 	std::cout << "selected:" << selected.size() << std::endl;
+// 	selected.clear();
+// 	selected[0] = cands.first;
+// 	selected[1] = cands.second;
+// 	std::cout << selected[0]->pt << ", " << selected[1]->pt << std::endl;
+
+
+// 	if( trackerIsolation(*selected[0],0.1) && trackerIsolation(*selected[1],0.1) ) {
+// 		std::cout << "isolated" << std::endl;
+// 		return true;
+// 	}
+// 	else {
+// 		if( deltaR(selected[0]->eta,selected[0]->phi,selected[1]->eta,selected[1]->phi) < 0.3 ) {
+// 			double iso0 = selected[0]->isolationR03_sumpt - selected[1]->pt;
+// 			double iso1 = selected[1]->isolationR03_sumpt - selected[0]->pt;
+// 			// if(iso0 < -0.1*selected[1]->pt) iso0 = selected[0]->isolationR03_sumpt;
+// 			// if(iso1 < -0.1*selected[0]->pt) iso1 = selected[1]->isolationR03_sumpt;
+// 			return ( iso0/selected[0]->pt < 0.1 && iso1/selected[1]->pt < 0.1 );
+// 		}
+// 		else return false;
+// 	}
+
+// }
+
+bool MuonSelector::finalMuonSelection() {
+
+	// std::cout << "### final selection ###" << std::endl;
+	bool leadingMu = false, highPt = false;
+	int extraPt = 0;
+	for(auto& mu : selected) {
+		if(mu->pt > extraPtCut) {
+			++extraPt;
+			if(mu->pt > ptCut) leadingMu = true;
+			if(highPtMuonID(*mu)) highPt = true;
+		}
+	}
+	return (extraPt==2 && leadingMu && highPt);
+
+}
+
 
 const NtupleMuon& MuonSelector::at(int i) const {
 	return *selected[i];
@@ -66,7 +188,7 @@ bool ElectronSelector::select( const std::vector<NtupleElectron>& candidates ) {
 	selected.clear();
 
 	for( auto& el : candidates ) {
-		if( acceptance(el,vetoPtCut,etaCut) && excludeECALGap(el) && WPLoose(el,true) && miniIsolation(el,0.1) ) {
+		if( acceptance(el,vetoPtCut,etaCut) && excludeECALGap(el) && cutBasedWPLoose(el,true) && miniIsolation(el,0.1) ) {
 			selected.push_back(&el);
 			if(el.pt > ptCut) leadingEl = true;
 		}
@@ -100,10 +222,40 @@ bool PhotonSelector::select( const std::vector<NtuplePhoton>& candidates ) {
 	selected.clear();
 	
 	for( auto& pho : candidates ) {
-		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && WPLoose(pho,true) ) selected.push_back(&pho);
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) ) selected.push_back(&pho);
 	} 
 
-	pass = ( selected.size() == 1 ) ? true : false;
+	pass = (selected.size()==1);
+	return pass;
+
+}
+
+bool PhotonSelector::select( const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1 ) {
+
+	selected.clear();
+	
+	for( auto& pho : candidates ) {
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) 
+			&& deltaR(pho.eta,pho.phi,el0.eta,el0.phi) > 0.4 
+			&& deltaR(pho.eta,pho.phi,el1.eta,el1.phi) > 0.4 ) selected.push_back(&pho);
+	} 
+
+	pass = (selected.size()==1);
+	return pass;
+
+}
+
+bool PhotonSelector::select( const std::vector<NtuplePhoton>& candidates, const NtupleMuon& mu0, const NtupleMuon& mu1 ) {
+
+	selected.clear();
+	
+	for( auto& pho : candidates ) {
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) 
+			&& deltaR(pho.eta,pho.phi,mu0.eta,mu0.phi) > 0.4 
+			&& deltaR(pho.eta,pho.phi,mu1.eta,mu1.phi) > 0.4 ) selected.push_back(&pho);
+	} 
+
+	pass = (selected.size()==1);
 	return pass;
 
 }
@@ -149,7 +301,7 @@ template<class T> bool excludeECALGap(const T& particle) {
 }
 
 template<class T> bool miniIsolation(const T& particle, const double& iso) {
-	return ( particle.miniIso/particle.pt < iso );
+	return ( particle.miniIsoAbs/particle.pt < iso );
 }
 
 bool trackerIsolation(const NtupleMuon& mu, const double& iso) {
@@ -169,7 +321,7 @@ bool tightMuonID(const NtupleMuon& mu) {
 		  && mu.nValidPixelHits>0 
 		  && mu.nTrackerLayers>5 
 		  && fabs(mu.dxyVTX) < 0.2 
-		  && fabs(mu.dzVTX) < 0.5 ) ? true : false;
+		  && fabs(mu.dzVTX) < 0.5 );
 }
 
 bool highPtMuonID(const NtupleMuon& mu) {
@@ -180,10 +332,10 @@ bool highPtMuonID(const NtupleMuon& mu) {
 		  && mu.nValidPixelHits>0 
 		  && mu.nTrackerLayers>5 
 		  && fabs(mu.dxyVTX)<0.2 
-		  && mu.muonBestTrack_ptError/mu.muonBestTrack_pt<0.3 ) ? true : false;
+		  && mu.muonBestTrack_ptError/mu.muonBestTrack_pt<0.3 );
 }
 
-bool WPLoose(const NtupleElectron& el, const bool& isZG) {
+bool cutBasedWPLoose(const NtupleElectron& el, const bool& isZG) {
     if( fabs(el.eta) <= 1.479 ) { //Barrel
         return ( el.sigmaIetaIeta < 0.0103
               && fabs(el.dEtaIn) < 0.0105
@@ -211,17 +363,17 @@ bool WPLoose(const NtupleElectron& el, const bool& isZG) {
     return false;
 }
 
-bool WPLoose(const NtuplePhoton& pho, const bool& isZG) {
+bool cutBasedWPLoose(const NtuplePhoton& pho, const bool& isZG) {
     if( fabs(pho.eta) <= 1.479 ) { // Barrel
         if ( pho.HoverE < 0.05 && pho.Full5x5_SigmaIEtaIEta < 0.0102 && !pho.hasPixelSeed ) {
         	if(isZG) return ( pho.ChIso < 2.5 );
-        	else ( pho.ChIso < 3.32 && pho.NhIsoWithEA < 1.92 + 0.014 * pho.pt + 0.000019 * pho.pt * pho.pt && pho.PhIsoWithEA < 0.81 + 0.0053 * pho.pt );
+        	else return ( pho.ChIso < 3.32 && pho.NhIsoWithEA < 1.92 + 0.014 * pho.pt + 0.000019 * pho.pt * pho.pt && pho.PhIsoWithEA < 0.81 + 0.0053 * pho.pt );
     	}
     }
     else { // Endcap
         if( pho.HoverE < 0.05 && pho.Full5x5_SigmaIEtaIEta < 0.0274 && !pho.hasPixelSeed ){
             if(isZG) return ( pho.ChIso < 2.5 );
-            else ( pho.ChIso < 1.97 && pho.NhIsoWithEA < 11.86 + 0.0139 * pho.pt + 0.000025 * pho.pt * pho.pt && pho.PhIsoWithEA < 0.83 + 0.0034 * pho.pt );
+            else return ( pho.ChIso < 1.97 && pho.NhIsoWithEA < 11.86 + 0.0139 * pho.pt + 0.000025 * pho.pt * pho.pt && pho.PhIsoWithEA < 0.83 + 0.0034 * pho.pt );
         }
     }
     return false;
