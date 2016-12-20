@@ -21,6 +21,7 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 	recoTree->Branch("lept0_eta",&lept0_eta);
 	recoTree->Branch("lept0_phi",&lept0_phi);
 	recoTree->Branch("lept0_miniRelIso",&lept0_miniRelIso);
+	recoTree->Branch("lept0_trkIso",&lept0_trkIso);
 	recoTree->Branch("lept0_pdgId",&lept0_pdgId);
 	recoTree->Branch("lept0_normalizedChi2",&lept0_normalizedChi2);
 	recoTree->Branch("lept0_nValidMuonHits",&lept0_nValidMuonHits);
@@ -42,6 +43,7 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 	recoTree->Branch("lept1_eta",&lept1_eta);
 	recoTree->Branch("lept1_phi",&lept1_phi);
 	recoTree->Branch("lept1_miniRelIso",&lept1_miniRelIso);
+	recoTree->Branch("lept1_trkIso",&lept1_trkIso);
 	recoTree->Branch("lept1_pdgId",&lept1_pdgId);
 	recoTree->Branch("lept1_normalizedChi2",&lept1_normalizedChi2);
 	recoTree->Branch("lept1_nValidMuonHits",&lept1_nValidMuonHits);
@@ -189,6 +191,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept0_eta = mu1.eta;
 		lept0_phi = mu1.phi;
 		lept0_miniRelIso = mu1.miniIsoAbs/mu1.pt;
+		lept0_trkIso = mu1.isolationR03_sumpt/mu1.pt;
 		lept0_pdgId = 13*mu1.charge;
 		lept0_normalizedChi2 = mu1.normalizedChi2;
 		lept0_nValidMuonHits = mu1.nValidMuonHits;
@@ -202,6 +205,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept1_eta = mu2.eta;
 		lept1_phi = mu2.phi;
 		lept1_miniRelIso = mu2.miniIsoAbs/mu2.pt;
+		lept1_trkIso = mu2.isolationR03_sumpt/mu2.pt;
 		lept1_pdgId = 13*mu2.charge;
 		lept1_normalizedChi2 = mu2.normalizedChi2;
 		lept1_nValidMuonHits = mu2.nValidMuonHits;

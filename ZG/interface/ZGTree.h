@@ -26,6 +26,7 @@ public:
 	double lept0_eta;
 	double lept0_phi;
 	double lept0_miniRelIso;
+	double lept0_trkIso;
 	double lept0_pdgId;
 	double lept0_normalizedChi2;
 	double lept0_nValidMuonHits;
@@ -47,6 +48,7 @@ public:
 	double lept1_eta;
 	double lept1_phi;
 	double lept1_miniRelIso;
+	double lept1_trkIso;
 	double lept1_pdgId;
 	double lept1_normalizedChi2;
 	double lept1_nValidMuonHits;

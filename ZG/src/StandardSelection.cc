@@ -57,7 +57,8 @@ bool MuonSelector::selectMoriond17( const std::vector<NtupleMuon>& candidates ) 
 	bool leadingMu = false, highPt = false;
 	int extraPt = 0;
 	for( auto& mu : selected ) {
-		if( acceptance(*mu,vetoPtCut,etaCut) && (looseMuonID(*mu,true)||highPtMuonID(*mu)) ) {
+		if( acceptance(*mu,vetoPtCut,etaCut) && (looseMuonID(*mu,false)||highPtMuonID(*mu)) ) {
+		//if( acceptance(*mu,vetoPtCut,etaCut) && (looseMuonID(*mu,true)||highPtMuonID(*mu)) ) {
 		// if( acceptance(*mu,vetoPtCut,etaCut) && looseMuonID(*mu,true) ) {
 			passed.push_back(mu);
 			if(mu->pt > extraPtCut) {
@@ -99,7 +100,7 @@ void MuonSelector::boostedTrackerIsolation( const std::vector<NtupleMuon>& candi
 					iso -= candidates[j].innerTrack_pt;
 				}
 			}
-			if( iso/candidates[i].pt < 0.1 ) selected.push_back(&candidates[i]);
+			if( iso > -0.1*candidates[i].pt && iso/candidates[i].pt < 0.1 ) selected.push_back(&candidates[i]);
 		}
 	}
 }
@@ -337,44 +338,86 @@ bool highPtMuonID(const NtupleMuon& mu) {
 
 bool cutBasedWPLoose(const NtupleElectron& el, const bool& isZG) {
     if( fabs(el.eta) <= 1.479 ) { //Barrel
-        return ( el.sigmaIetaIeta < 0.0103
-              && fabs(el.dEtaIn) < 0.0105
-              && fabs(el.dPhiIn) < 0.115
-              && el.hOverE < 0.104
-              && el.ooEmooP < 0.102
-              && fabs(el.d0) < 0.0261
-              && fabs(el.dz) < 0.41
+        return ( el.sigmaIetaIeta < 0.011
+              && fabs(el.dEtaIn) < 0.00477
+              && fabs(el.dPhiIn) < 0.222
+              && el.hOverE < 0.298
+              && el.ooEmooP < 0.241
+              // && fabs(el.d0) < 0.05
+              // && fabs(el.dz) < 0.10
               && el.expectedMissingInnerHits <= 2
               && el.passConversionVeto
-              && (isZG || el.isoRho < 0.0893) );
+              && (isZG || el.isoRho < 0.0994) );
     }
     else { //Endcap
-        return ( el.sigmaIetaIeta < 0.0301
-              && fabs(el.dEtaIn) < 0.00814
-              && fabs(el.dPhiIn) < 0.182
-              && el.hOverE < 0.0897
-              && el.ooEmooP < 0.126
-              && fabs(el.d0) < 0.118
-              && fabs(el.dz) < 0.822
+        return ( el.sigmaIetaIeta < 0.0314
+              && fabs(el.dEtaIn) < 0.00868
+              && fabs(el.dPhiIn) < 0.213
+              && el.hOverE < 0.101
+              && el.ooEmooP < 0.14
+              // && fabs(el.d0) < 0.1
+              // && fabs(el.dz) < 0.2
               && el.expectedMissingInnerHits <= 1
               && el.passConversionVeto 
-              && (isZG || el.isoRho < 0.121) );
+              && (isZG || el.isoRho < 0.107) );
     }
     return false;
+
+    // Spring15 //
+    // if( fabs(el.eta) <= 1.479 ) { //Barrel
+    //     return ( el.sigmaIetaIeta < 0.0103
+    //           && fabs(el.dEtaIn) < 0.0105
+    //           && fabs(el.dPhiIn) < 0.115
+    //           && el.hOverE < 0.104
+    //           && el.ooEmooP < 0.102
+    //           && fabs(el.d0) < 0.0261
+    //           && fabs(el.dz) < 0.41
+    //           && el.expectedMissingInnerHits <= 2
+    //           && el.passConversionVeto
+    //           && (isZG || el.isoRho < 0.0893) );
+    // }
+    // else { //Endcap
+    //     return ( el.sigmaIetaIeta < 0.0301
+    //           && fabs(el.dEtaIn) < 0.00814
+    //           && fabs(el.dPhiIn) < 0.182
+    //           && el.hOverE < 0.0897
+    //           && el.ooEmooP < 0.126
+    //           && fabs(el.d0) < 0.118
+    //           && fabs(el.dz) < 0.822
+    //           && el.expectedMissingInnerHits <= 1
+    //           && el.passConversionVeto 
+    //           && (isZG || el.isoRho < 0.121) );
+    // }
+    // return false;
 }
 
 bool cutBasedWPLoose(const NtuplePhoton& pho, const bool& isZG) {
     if( fabs(pho.eta) <= 1.479 ) { // Barrel
-        if ( pho.HoverE < 0.05 && pho.Full5x5_SigmaIEtaIEta < 0.0102 && !pho.hasPixelSeed ) {
-        	if(isZG) return ( pho.ChIso < 2.5 );
-        	else return ( pho.ChIso < 3.32 && pho.NhIsoWithEA < 1.92 + 0.014 * pho.pt + 0.000019 * pho.pt * pho.pt && pho.PhIsoWithEA < 0.81 + 0.0053 * pho.pt );
+        if ( pho.HoverE < 0.0597 && pho.Full5x5_SigmaIEtaIEta < 0.01031 ) {
+        	if(isZG) return ( pho.ChIso < 2.5 && !pho.hasPixelSeed );
+        	else return ( pho.ChIso < 1.295 && pho.NhIsoWithEA < 10.910 + 0.0148 * pho.pt + 0.000017 * pho.pt * pho.pt && pho.PhIsoWithEA < 3.630 + 0.0047 * pho.pt );
     	}
     }
     else { // Endcap
-        if( pho.HoverE < 0.05 && pho.Full5x5_SigmaIEtaIEta < 0.0274 && !pho.hasPixelSeed ){
-            if(isZG) return ( pho.ChIso < 2.5 );
-            else return ( pho.ChIso < 1.97 && pho.NhIsoWithEA < 11.86 + 0.0139 * pho.pt + 0.000025 * pho.pt * pho.pt && pho.PhIsoWithEA < 0.83 + 0.0034 * pho.pt );
+        if( pho.HoverE < 0.0481 && pho.Full5x5_SigmaIEtaIEta < 0.03013 ){
+            if(isZG) return ( pho.ChIso < 2.5 && !pho.hasPixelSeed );
+            else return ( pho.ChIso < 1.011 && pho.NhIsoWithEA < 5.931 + 0.0163 * pho.pt + 0.000014 * pho.pt * pho.pt && pho.PhIsoWithEA < 6.641 + 0.0034 * pho.pt );
         }
     }
     return false;
+
+    // Spring15 //
+    // if( fabs(pho.eta) <= 1.479 ) { // Barrel
+    //     if ( pho.HoverE < 0.05 && pho.Full5x5_SigmaIEtaIEta < 0.0102 && !pho.hasPixelSeed ) {
+    //     	if(isZG) return ( pho.ChIso < 2.5 );
+    //     	else return ( pho.ChIso < 3.32 && pho.NhIsoWithEA < 1.92 + 0.014 * pho.pt + 0.000019 * pho.pt * pho.pt && pho.PhIsoWithEA < 0.81 + 0.0053 * pho.pt );
+    // 	}
+    // }
+    // else { // Endcap
+    //     if( pho.HoverE < 0.05 && pho.Full5x5_SigmaIEtaIEta < 0.0274 && !pho.hasPixelSeed ){
+    //         if(isZG) return ( pho.ChIso < 2.5 );
+    //         else return ( pho.ChIso < 1.97 && pho.NhIsoWithEA < 11.86 + 0.0139 * pho.pt + 0.000025 * pho.pt * pho.pt && pho.PhIsoWithEA < 0.83 + 0.0034 * pho.pt );
+    //     }
+    // }
+    // return false;
 }
