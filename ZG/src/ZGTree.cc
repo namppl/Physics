@@ -30,6 +30,7 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 	recoTree->Branch("lept0_nTrackerLayers",&lept0_nTrackerLayers);
 	recoTree->Branch("lept0_muonBestTrack_dxyVTX",&lept0_muonBestTrack_dxyVTX);
 	recoTree->Branch("lept0_muonBestTrack_dzVTX",&lept0_muonBestTrack_dzVTX);
+	recoTree->Branch("lept0_ptError",&lept0_ptError);
 	recoTree->Branch("lept0_sigmaIetaIeta",&lept0_sigmaIetaIeta);
 	recoTree->Branch("lept0_dEtaIn",&lept0_dEtaIn);
 	recoTree->Branch("lept0_dPhiIn",&lept0_dPhiIn);
@@ -52,6 +53,7 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 	recoTree->Branch("lept1_nTrackerLayers",&lept1_nTrackerLayers);
 	recoTree->Branch("lept1_muonBestTrack_dxyVTX",&lept1_muonBestTrack_dxyVTX);
 	recoTree->Branch("lept1_muonBestTrack_dzVTX",&lept1_muonBestTrack_dzVTX);
+	recoTree->Branch("lept1_ptError",&lept1_ptError);
 	recoTree->Branch("lept1_sigmaIetaIeta",&lept1_sigmaIetaIeta);
 	recoTree->Branch("lept1_dEtaIn",&lept1_dEtaIn);
 	recoTree->Branch("lept1_dPhiIn",&lept1_dPhiIn);
@@ -200,6 +202,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept0_nTrackerLayers = mu1.nTrackerLayers;
 		lept0_muonBestTrack_dxyVTX = mu1.dxyVTX;
 		lept0_muonBestTrack_dzVTX = mu1.dzVTX;
+		lept0_ptError = mu1..muonBestTrack_ptError;
 
 		lept1_pt  = mu2.pt;
 		lept1_eta = mu2.eta;
@@ -214,6 +217,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept1_nTrackerLayers = mu2.nTrackerLayers;
 		lept1_muonBestTrack_dxyVTX = mu2.dxyVTX;
 		lept1_muonBestTrack_dzVTX = mu2.dzVTX;
+		lept1_ptError = mu2..muonBestTrack_ptError;
 
 		deltaR_lept = deltaR(mu1.eta,mu1.phi,mu2.eta,mu2.phi); 
 

@@ -35,6 +35,7 @@ public:
 	double lept0_nTrackerLayers;
 	double lept0_muonBestTrack_dxyVTX;
 	double lept0_muonBestTrack_dzVTX;
+	double lept0_ptError;
 	double lept0_sigmaIetaIeta;
 	double lept0_dEtaIn;
 	double lept0_dPhiIn;
@@ -57,6 +58,7 @@ public:
 	double lept1_nTrackerLayers;
 	double lept1_muonBestTrack_dxyVTX;
 	double lept1_muonBestTrack_dzVTX;
+	double lept1_ptError;
 	double lept1_sigmaIetaIeta;
 	double lept1_dEtaIn;
 	double lept1_dPhiIn;
