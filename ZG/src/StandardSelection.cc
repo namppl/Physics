@@ -203,6 +203,68 @@ bool ElectronSelector::select( const std::vector<NtupleElectron>& candidates ) {
 
 }
 
+bool ElectronSelector::selectHoverE( const std::vector<NtupleElectron>& candidates ) {
+
+	bool leadingEl	= false;
+	selected.clear();
+
+	for( auto& el : candidates ) {
+		if( acceptance(el,vetoPtCut,etaCut) && excludeECALGap(el) && cutBasedWPLoose_NoHoverE(el) && miniIsolation(el,0.1) ) {
+			selected.push_back(&el);
+			if(el.pt > ptCut) leadingEl = true;
+		}
+	}
+
+	pass = false;
+	if( leadingEl && selected.size() == 2 ) {
+		if( selected[0]->pt > extraPtCut && selected[1]->pt > extraPtCut ) pass = true;
+	}
+	return pass;
+
+}
+
+bool ElectronSelector::selectHEEP( const std::vector<NtupleElectron>& candidates, const NtupleEvent& ev, const bool& isZG ) {
+
+	bool leadingEl	= false;
+	selected.clear();
+
+	for( auto& el : candidates ) {
+		if( acceptance(el,vetoPtCut,etaCut) && excludeECALGap(el) && HEEP(el,ev,isZG) ) {
+			if( (isZG&&miniIsolation(el,0.1)) || !isZG ) {
+				selected.push_back(&el);
+				if(el.pt > ptCut) leadingEl = true;
+			}
+		}
+	}
+
+	pass = false;
+	if( leadingEl && selected.size() == 2 ) {
+		if( selected[0]->pt > extraPtCut && selected[1]->pt > extraPtCut ) pass = true;
+	}
+	return pass;
+
+}
+
+bool ElectronSelector::selectModifiedHEEP( const std::vector<NtupleElectron>& candidates, const NtupleEvent& ev ) {
+
+	bool leadingEl	= false;
+	selected.clear();
+
+	for( auto& el : candidates ) {
+		if( acceptance(el,vetoPtCut,etaCut) && excludeECALGap(el) && modifiedHEEP(el,ev) ) {
+			selected.push_back(&el);
+			if(el.pt > ptCut) leadingEl = true;
+		}
+	}
+
+	pass = false;
+	if( leadingEl && selected.size() == 2 ) {
+		if( selected[0]->pt > extraPtCut && selected[1]->pt > extraPtCut ) pass = true;
+	}
+	return pass;
+
+}
+
 const NtupleElectron& ElectronSelector::at(int i) const {
 	return *selected[i];
 }
@@ -224,6 +286,19 @@ bool PhotonSelector::select( const std::vector<NtuplePhoton>& candidates ) {
 	
 	for( auto& pho : candidates ) {
 		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) ) selected.push_back(&pho);
+	} 
+
+	pass = (selected.size()==1);
+	return pass;
+
+}
+
+bool PhotonSelector::selectMVA( const std::vector<NtuplePhoton>& candidates ) {
+
+	selected.clear();
+	
+	for( auto& pho : candidates ) {
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 ) selected.push_back(&pho);
 	} 
 
 	pass = (selected.size()==1);
@@ -389,6 +464,86 @@ bool cutBasedWPLoose(const NtupleElectron& el, const bool& isZG) {
     //           && (isZG || el.isoRho < 0.121) );
     // }
     // return false;
+}
+
+bool cutBasedWPLoose_NoHoverE(const NtupleElectron& el) {
+    if( fabs(el.eta) <= 1.479 ) { //Barrel
+        return ( el.sigmaIetaIeta < 0.011
+              && fabs(el.dEtaIn) < 0.00477
+              && fabs(el.dPhiIn) < 0.222
+              && el.ooEmooP < 0.241
+              && el.expectedMissingInnerHits <= 2
+              && el.passConversionVeto );
+    }
+    else { //Endcap
+        return ( el.sigmaIetaIeta < 0.0314
+              && fabs(el.dEtaIn) < 0.00868
+              && fabs(el.dPhiIn) < 0.213
+              && el.ooEmooP < 0.14
+              && el.expectedMissingInnerHits <= 1
+              && el.passConversionVeto );
+    }
+    return false;
+}
+
+bool HEEP(const NtupleElectron& el, const NtupleEvent& ev, const bool& isZG) {
+	bool pass = false;
+	if(el.eleEcalDrivenSeed) {
+		if( fabs(el.eta) <= 1.479 ) { // Barrel
+			if( fabs(el.dEtaIn) < 0.004
+				  && fabs(el.dPhiIn) < 0.06
+				  && el.hOverE < 1/el.E + 0.05
+				  && (el.E2x5/el.E5x5 > 0.94 || el.E1x5/el.E5x5 > 0.83)
+				  && el.expectedMissingInnerHits <= 1
+				  && fabs(el.d0) < 0.02 ) {
+				if(isZG) pass = true;
+				else pass = ((el.dr03ecalRecHitSumEt+el.dr03hcalDepth1TowerSumEt) < 2 + 0.03 * el.pt + 0.28 * ev.rho) && el.dr03tkSumPt < 5;
+			}
+		}
+		else { // Endcap
+			if( fabs(el.dEtaIn) < 0.006
+			 && fabs(el.dPhiIn) < 0.06
+			 && el.hOverE < 5/el.E + 0.05
+			 && el.sigmaIetaIeta < 0.03
+			 && el.expectedMissingInnerHits <= 1
+			 && fabs(el.d0) < 0.02 ) {
+				if(isZG) pass = true;
+				else if(el.dr03tkSumPt < 5) {
+					if( el.pt < 50 ) pass = (el.dr03ecalRecHitSumEt+el.dr03hcalDepth1TowerSumEt) < 2.5 + 0.28 * ev.rho;
+					else pass = (el.dr03ecalRecHitSumEt+el.dr03hcalDepth1TowerSumEt) < 2.5 + 0.03 * (el.pt - 50) + 0.28 * ev.rho;
+				}
+			}
+		}
+	}
+	return pass;
+}
+
+bool modifiedHEEP(const NtupleElectron& el, const NtupleEvent& ev) {
+	bool pass = false;
+	if(el.eleEcalDrivenSeed) {
+		if( fabs(el.eta) <= 1.479 ) { // Barrel
+			if( fabs(el.dEtaIn) < 0.004
+				  && fabs(el.dPhiIn) < 0.06
+				  && el.hOverE < 1/el.E + 0.05
+				  && (el.E2x5/el.E5x5 > 0.94 || el.E1x5/el.E5x5 > 0.83)
+				  && el.expectedMissingInnerHits <= 1
+				  && fabs(el.d0) < 0.02 ) {
+				pass = ((el.dr03ecalRecHitSumEt+el.dr03hcalDepth1TowerSumEt) < 2 + 0.03 * el.pt + 0.28 * ev.rho); // && el.dr03tkSumPt < 5;
+			}
+		}
+		else { // Endcap
+			if( fabs(el.dEtaIn) < 0.006
+			 && fabs(el.dPhiIn) < 0.06
+			 && el.hOverE < 5/el.E + 0.05
+			 && el.sigmaIetaIeta < 0.03
+			 && el.expectedMissingInnerHits <= 1
+			 && fabs(el.d0) < 0.02 ) {
+				if( el.pt < 50 ) pass = (el.dr03ecalRecHitSumEt+el.dr03hcalDepth1TowerSumEt) < 2.5 + 0.28 * ev.rho;
+				else pass = (el.dr03ecalRecHitSumEt+el.dr03hcalDepth1TowerSumEt) < 2.5 + 0.03 * (el.pt - 50) + 0.28 * ev.rho;
+			}
+		}
+	}
+	return pass;
 }
 
 bool cutBasedWPLoose(const NtuplePhoton& pho, const bool& isZG) {

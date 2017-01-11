@@ -16,6 +16,9 @@ bool looseMuonID(const NtupleMuon& mu, const bool& isZG);
 bool tightMuonID(const NtupleMuon& mu);
 bool highPtMuonID(const NtupleMuon& mu);
 bool cutBasedWPLoose(const NtupleElectron& el, const bool& isZG);
+bool cutBasedWPLoose_NoHoverE(const NtupleElectron& el);
+bool HEEP(const NtupleElectron& el, const NtupleEvent& ev, const bool& isZG);
+bool modifiedHEEP(const NtupleElectron& el, const NtupleEvent& ev);
 bool cutBasedWPLoose(const NtuplePhoton& pho, const bool& isZG);
 
 class Selector {
@@ -59,6 +62,9 @@ public:
 	ElectronSelector();
 	ElectronSelector(const double& _ptCut, const double& _etaCut, const double& _extraPtCut, const double& _vetoPtCut);
 	bool select(const std::vector<NtupleElectron>& candidates);
+	bool selectHoverE(const std::vector<NtupleElectron>& candidates);
+	bool selectHEEP(const std::vector<NtupleElectron>& candidates, const NtupleEvent& ev, const bool& isZG);
+	bool selectModifiedHEEP(const std::vector<NtupleElectron>& candidates, const NtupleEvent& ev);
 	const NtupleElectron& at(int i) const;
 	int nElectrons();
 };
@@ -70,6 +76,7 @@ public:
 	PhotonSelector();
 	PhotonSelector(const double& _ptCut, const double& _etaCut);
 	bool select(const std::vector<NtuplePhoton>& candidates);
+	bool selectMVA(const std::vector<NtuplePhoton>& candidates);
 	bool select(const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1);
 	bool select(const std::vector<NtuplePhoton>& candidates, const NtupleMuon& mu0, const NtupleMuon& mu1);
 	const NtuplePhoton& at(int i) const;

@@ -202,7 +202,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept0_nTrackerLayers = mu1.nTrackerLayers;
 		lept0_muonBestTrack_dxyVTX = mu1.dxyVTX;
 		lept0_muonBestTrack_dzVTX = mu1.dzVTX;
-		lept0_ptError = mu1..muonBestTrack_ptError;
+		lept0_ptError = mu1.muonBestTrack_ptError;
 
 		lept1_pt  = mu2.pt;
 		lept1_eta = mu2.eta;
@@ -217,7 +217,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept1_nTrackerLayers = mu2.nTrackerLayers;
 		lept1_muonBestTrack_dxyVTX = mu2.dxyVTX;
 		lept1_muonBestTrack_dzVTX = mu2.dzVTX;
-		lept1_ptError = mu2..muonBestTrack_ptError;
+		lept1_ptError = mu2.muonBestTrack_ptError;
 
 		deltaR_lept = deltaR(mu1.eta,mu1.phi,mu2.eta,mu2.phi); 
 

@@ -67,7 +67,7 @@ void EventSelector::selectICHEP16() {
 
 }
 
-void EventSelector::selectMoriond17() {
+void EventSelector::selectMoriond17(const int& option) {
 	
 	run = event->run;
 	lumi = event->lumi;
@@ -78,11 +78,37 @@ void EventSelector::selectMoriond17() {
 
 	muon = false;
 	electron = false;
-
-	ee->select(event->electrons);
+	
+	switch(option) {
+		case 0: 
+			ee->select(event->electrons);
+			break;
+		case 1: 
+			ee->selectHEEP(event->electrons, *event, true);
+			break;
+		case 2: 
+			ee->selectHEEP(event->electrons, *event, false);
+			break;
+		case 3: 
+			ee->selectModifiedHEEP(event->electrons, *event);
+			break;
+		case 4: 
+			ee->selectHoverE(event->electrons);
+			break;
+		case 5: 
+			ee->select(event->electrons);
+			break;
+	}
 	mm->selectMoriond17(event->muons);
-	gamma_ee->select(event->photons);
-	gamma_mm->select(event->photons);
+
+	if(option!=5) {
+		gamma_ee->select(event->photons);
+		gamma_mm->select(event->photons);
+	}
+	else {
+		gamma_ee->selectMVA(event->photons);
+		gamma_mm->selectMVA(event->photons);
+	}
 
 	if( ee->passSelection() && mm->nMuons()==0 && gamma_ee->passSelection() ) selectDielGamma();
 	else if( mm->passSelection() && ee->nElectrons()==0 && gamma_mm->passSelection() ) selectDimuGamma();

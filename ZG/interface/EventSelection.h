@@ -9,7 +9,7 @@ public:
 	~EventSelector();
 	void setEvent( NtupleEvent* _event );
 	void selectICHEP16();
-	void selectMoriond17();
+	void selectMoriond17(const int& option);
 	void selectDimuGamma();
 	void selectDielGamma();
 	bool isTriggered( const TString& triggerName );
