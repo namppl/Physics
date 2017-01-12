@@ -190,8 +190,11 @@ bool ElectronSelector::select( const std::vector<NtupleElectron>& candidates ) {
 
 	for( auto& el : candidates ) {
 		if( acceptance(el,vetoPtCut,etaCut) && excludeECALGap(el) && cutBasedWPLoose(el,true) && miniIsolation(el,0.1) ) {
-			selected.push_back(&el);
-			if(el.pt > ptCut) leadingEl = true;
+			//if( fabs(el.eta) < 1.566 || el.pt > 70 ) {
+				selected.push_back(&el);
+				//if( (fabs(el.eta)<1.566&&el.pt > ptCut)||el.pt>70 ) leadingEl = true; 
+				if(el.pt > ptCut) leadingEl = true; 
+			//}
 		}
 	}
 
@@ -285,7 +288,11 @@ bool PhotonSelector::select( const std::vector<NtuplePhoton>& candidates ) {
 	selected.clear();
 	
 	for( auto& pho : candidates ) {
-		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) ) selected.push_back(&pho);
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) ) {
+			//if( fabs(pho.eta) < 1.566 || pho.pt > 70 ) {
+				selected.push_back(&pho);
+			//}
+		}
 	} 
 
 	pass = (selected.size()==1);
@@ -298,7 +305,10 @@ bool PhotonSelector::selectMVA( const std::vector<NtuplePhoton>& candidates ) {
 	selected.clear();
 	
 	for( auto& pho : candidates ) {
-		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 ) selected.push_back(&pho);
+		//std::cout << "pt: " << pho.pt << ", eta: " << pho.eta << ", mva: " << pho.mvaValue << std::endl;
+		//if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.passMediumId && pho.passElectronVeto ) selected.push_back(&pho);
+		//if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && pho.passElectronVeto ) selected.push_back(&pho);
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && !pho.hasPixelSeed ) selected.push_back(&pho);
 	} 
 
 	pass = (selected.size()==1);
@@ -550,12 +560,14 @@ bool cutBasedWPLoose(const NtuplePhoton& pho, const bool& isZG) {
     if( fabs(pho.eta) <= 1.479 ) { // Barrel
         if ( pho.HoverE < 0.0597 && pho.Full5x5_SigmaIEtaIEta < 0.01031 ) {
         	if(isZG) return ( pho.ChIso < 2.5 && !pho.hasPixelSeed );
+        	//if(isZG) return ( pho.ChIso < 2.5 && pho.passElectronVeto );
         	else return ( pho.ChIso < 1.295 && pho.NhIsoWithEA < 10.910 + 0.0148 * pho.pt + 0.000017 * pho.pt * pho.pt && pho.PhIsoWithEA < 3.630 + 0.0047 * pho.pt );
     	}
     }
     else { // Endcap
         if( pho.HoverE < 0.0481 && pho.Full5x5_SigmaIEtaIEta < 0.03013 ){
             if(isZG) return ( pho.ChIso < 2.5 && !pho.hasPixelSeed );
+            //if(isZG) return ( pho.ChIso < 2.5 && pho.passElectronVeto );
             else return ( pho.ChIso < 1.011 && pho.NhIsoWithEA < 5.931 + 0.0163 * pho.pt + 0.000014 * pho.pt * pho.pt && pho.PhIsoWithEA < 6.641 + 0.0034 * pho.pt );
         }
     }

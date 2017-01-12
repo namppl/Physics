@@ -15,7 +15,7 @@ verbose{_verbose}, elPtCut{_elPtCut}, elExtraPtCut{_elExtraPtCut}, elVetoPtCut{_
 	std::cout << "upper mass threshold: " << upperMassCut << std::endl; 
 	std::cout << "photon pt over ZG mass: " << phoPtOverMZG << std::endl;
 	std::cout << "multiple photon: "<< multiPho << std::endl;
-	ee = new ElectronSelector(elPtCut, 2.4, elExtraPtCut, elVetoPtCut);
+	ee = new ElectronSelector(elPtCut, 2.5, elExtraPtCut, elVetoPtCut);
 	mm = new MuonSelector(muPtCut, 2.4, muExtraPtCut, muVetoPtCut);
 	gamma_ee = new PhotonSelector(phoPtCut_ee, 2.5);
 	gamma_mm = new PhotonSelector(phoPtCut_mm, 2.5);
@@ -128,7 +128,7 @@ void EventSelector::selectDielGamma() {
 	double dR1 = deltaR(el1.eta,el1.phi,pho.eta,pho.phi); 
 	double dR2 = deltaR(el2.eta,el2.phi,pho.eta,pho.phi);
 
-	if( el1.charge*el2.charge < 0 && dR1 > 0.4 && dR2 > 0.4 && z_mass > lowerMassCut && z_mass < upperMassCut && pho.pt/boss_mass > phoPtOverMZG ) {
+	if( /*el1.charge*el2.charge < 0 &&*/ dR1 > 0.4 && dR2 > 0.4 && z_mass > lowerMassCut && z_mass < upperMassCut && pho.pt/boss_mass > phoPtOverMZG ) {
 		electron = true;
 	}
 		
