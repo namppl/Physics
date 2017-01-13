@@ -123,6 +123,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		const NtupleElectron& el1 = ( leading ) ? selector.ee->at(0) : selector.ee->at(1);
 		const NtupleElectron& el2 = ( leading ) ? selector.ee->at(1) : selector.ee->at(0);
 		const NtuplePhoton& pho = selector.gamma_ee->at(0);
+		//std::cout << "pt: " << pho.pt << ", eta: " << pho.eta << ", mva: " << pho.mvaValue << std::endl; 
 		
 		TLorentzVector z = momentum(el1,electron_mass) + momentum(el2,electron_mass);
 		TLorentzVector boss = momentum(el1,electron_mass) + momentum(el2,electron_mass) + momentum(pho,0.);

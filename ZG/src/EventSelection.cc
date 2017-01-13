@@ -102,16 +102,34 @@ void EventSelector::selectMoriond17(const int& option) {
 	mm->selectMoriond17(event->muons);
 
 	if(option!=5) {
-		gamma_ee->select(event->photons);
-		gamma_mm->select(event->photons);
+		if(ee->passSelection()) gamma_ee->select(event->photons);
+		if(mm->passSelection()) gamma_mm->select(event->photons);
 	}
 	else {
-		gamma_ee->selectMVA(event->photons);
-		gamma_mm->selectMVA(event->photons);
+		if(ee->passSelection()) gamma_ee->selectMVA(event->photons);
+		if(mm->passSelection()) gamma_mm->selectMVA(event->photons);	
 	}
 
 	if( ee->passSelection() && mm->nMuons()==0 && gamma_ee->passSelection() ) selectDielGamma();
 	else if( mm->passSelection() && ee->nElectrons()==0 && gamma_mm->passSelection() ) selectDimuGamma();
+
+	/*if( ee->passSelection() || mm->passSelection() ) {
+		if(option!=5) {
+			if(ee->passSelection()) gamma_ee->select(event->photons);
+			if(mm->passSelection()) gamma_mm->select(event->photons);
+			//if(ee->passSelection()) gamma_ee->select(event->photons,ee->at(0),ee->at(1));
+			//if(mm->passSelection()) gamma_mm->select(event->photons,mm->at(0),mm->at(1));
+		}
+		else {
+			if(ee->passSelection()) gamma_ee->selectMVA(event->photons);
+			if(mm->passSelection()) gamma_mm->selectMVA(event->photons);
+			//if(ee->passSelection()) gamma_ee->selectMVA(event->photons,ee->at(0),ee->at(1));
+			//if(mm->passSelection()) gamma_mm->selectMVA(event->photons,mm->at(0),mm->at(1));
+		}
+
+		if( ee->passSelection() && mm->nMuons()==0 && gamma_ee->passSelection() ) selectDielGamma();
+		else if( mm->passSelection() && ee->nElectrons()==0 && gamma_mm->passSelection() ) selectDimuGamma();
+	}*/
 
 }
 

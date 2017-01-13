@@ -79,6 +79,8 @@ public:
 	bool selectMVA(const std::vector<NtuplePhoton>& candidates);
 	bool select(const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1);
 	bool select(const std::vector<NtuplePhoton>& candidates, const NtupleMuon& mu0, const NtupleMuon& mu1);
+	bool selectMVA(const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1);
+	bool selectMVA(const std::vector<NtuplePhoton>& candidates, const NtupleMuon& mu0, const NtupleMuon& mu1);
 	const NtuplePhoton& at(int i) const;
 	int nPhotons();
 };
