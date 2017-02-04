@@ -62,6 +62,7 @@ public:
 	ElectronSelector();
 	ElectronSelector(const double& _ptCut, const double& _etaCut, const double& _extraPtCut, const double& _vetoPtCut);
 	bool select(const std::vector<NtupleElectron>& candidates);
+	bool selectEE(const std::vector<NtupleElectron>& candidates);
 	bool selectHoverE(const std::vector<NtupleElectron>& candidates);
 	bool selectHEEP(const std::vector<NtupleElectron>& candidates, const NtupleEvent& ev, const bool& isZG);
 	bool selectModifiedHEEP(const std::vector<NtupleElectron>& candidates, const NtupleEvent& ev);
@@ -76,7 +77,12 @@ public:
 	PhotonSelector();
 	PhotonSelector(const double& _ptCut, const double& _etaCut);
 	bool select(const std::vector<NtuplePhoton>& candidates);
+	bool selectEE(const std::vector<NtuplePhoton>& candidates);
 	bool selectMVA(const std::vector<NtuplePhoton>& candidates);
+	bool selectMVA(const std::vector<NtuplePhoton>& candidates, const NtupleMuon& mu0, const NtupleMuon& mu1);
+	bool selectMVA(const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1);
+	bool selectMVAEE(const std::vector<NtuplePhoton>& candidates);
+	bool selectMVAEE(const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1);
 	bool select(const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1);
 	bool select(const std::vector<NtuplePhoton>& candidates, const NtupleMuon& mu0, const NtupleMuon& mu1);
 	const NtuplePhoton& at(int i) const;

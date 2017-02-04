@@ -206,6 +206,26 @@ bool ElectronSelector::select( const std::vector<NtupleElectron>& candidates ) {
 
 }
 
+bool ElectronSelector::selectEE( const std::vector<NtupleElectron>& candidates ) {
+
+	bool leadingEl	= false;
+	selected.clear();
+
+	for( auto& el : candidates ) {
+		if( acceptance(el,vetoPtCut,etaCut) && excludeECALGap(el) && cutBasedWPLoose(el,true) && miniIsolation(el,0.1) ) {
+			selected.push_back(&el);
+			if( (fabs(el.eta)<1.566&&el.pt > ptCut)||el.pt>70 ) leadingEl = true; 
+		}
+	}
+
+	pass = false;
+	if( leadingEl && selected.size() == 2 ) {
+		if( selected[0]->pt > extraPtCut && selected[1]->pt > extraPtCut ) pass = true;
+	}
+	return pass;
+
+}
+
 bool ElectronSelector::selectHoverE( const std::vector<NtupleElectron>& candidates ) {
 
 	bool leadingEl	= false;
@@ -288,10 +308,29 @@ bool PhotonSelector::select( const std::vector<NtuplePhoton>& candidates ) {
 	selected.clear();
 	
 	for( auto& pho : candidates ) {
-		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) ) {
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) && !pho.hasPixelSeed ) {
+		//if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,false) && pho.passElectronVeto ) {
 			//if( fabs(pho.eta) < 1.566 || pho.pt > 70 ) {
 				selected.push_back(&pho);
 			//}
+		}
+	} 
+
+	pass = (selected.size()==1);
+	return pass;
+
+}
+
+bool PhotonSelector::selectEE( const std::vector<NtuplePhoton>& candidates ) {
+
+	selected.clear();
+	
+	for( auto& pho : candidates ) {
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) && !pho.hasPixelSeed ) {
+		//if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) && pho.passElectronVeto ) {
+			if( fabs(pho.eta) < 1.566 || pho.pt > 70 ) {
+				selected.push_back(&pho);
+			}
 		}
 	} 
 
@@ -307,8 +346,78 @@ bool PhotonSelector::selectMVA( const std::vector<NtuplePhoton>& candidates ) {
 	for( auto& pho : candidates ) {
 		//std::cout << "pt: " << pho.pt << ", eta: " << pho.eta << ", mva: " << pho.mvaValue << std::endl;
 		//if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.passMediumId && pho.passElectronVeto ) selected.push_back(&pho);
-		//if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && pho.passElectronVeto ) selected.push_back(&pho);
-		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && !pho.hasPixelSeed ) selected.push_back(&pho);
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && pho.passElectronVeto ) selected.push_back(&pho);
+		// if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && !pho.hasPixelSeed ) selected.push_back(&pho);
+	} 
+
+	pass = (selected.size()==1);
+	return pass;
+
+}
+
+bool PhotonSelector::selectMVA( const std::vector<NtuplePhoton>& candidates, const NtupleMuon& mu0, const NtupleMuon& mu1 ) {
+
+	selected.clear();
+	
+	for( auto& pho : candidates ) {
+		////if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && !pho.hasPixelSeed 
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && pho.passElectronVeto
+			&& deltaR(pho.eta,pho.phi,mu0.eta,mu0.phi) > 0.4
+            && deltaR(pho.eta,pho.phi,mu1.eta,mu1.phi) > 0.4 ) selected.push_back(&pho);
+	} 
+
+	pass = (selected.size()==1);
+	return pass;
+
+}
+
+bool PhotonSelector::selectMVA( const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1 ) {
+
+	selected.clear();
+	
+	for( auto& pho : candidates ) {
+		////if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && !pho.hasPixelSeed 
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && pho.passElectronVeto
+			&& deltaR(pho.eta,pho.phi,el0.eta,el0.phi) > 0.4
+            && deltaR(pho.eta,pho.phi,el1.eta,el1.phi) > 0.4 ) selected.push_back(&pho);
+	} 
+
+	pass = (selected.size()==1);
+	return pass;
+
+}
+
+bool PhotonSelector::selectMVAEE( const std::vector<NtuplePhoton>& candidates ) {
+
+	selected.clear();
+	
+	for( auto& pho : candidates ) {
+		// if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && !pho.hasPixelSeed ) {
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && pho.passElectronVeto) {
+			if( fabs(pho.eta) < 1.566 || pho.pt > 70 ) {
+                selected.push_back(&pho);
+            }
+		}
+	} 
+
+	pass = (selected.size()==1);
+	return pass;
+
+}
+
+bool PhotonSelector::selectMVAEE( const std::vector<NtuplePhoton>& candidates, const NtupleElectron& el0, const NtupleElectron& el1 ) {
+
+	selected.clear();
+	
+	for( auto& pho : candidates ) {
+		//if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && !pho.hasPixelSeed 
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && pho.mvaValue > 0.2 && pho.passElectronVeto            
+			&& deltaR(pho.eta,pho.phi,el0.eta,el0.phi) > 0.4
+            && deltaR(pho.eta,pho.phi,el1.eta,el1.phi) > 0.4 ) {
+			if( fabs(pho.eta) < 1.566 || pho.pt > 70 ) {
+                selected.push_back(&pho);
+            }
+		}
 	} 
 
 	pass = (selected.size()==1);
@@ -321,7 +430,7 @@ bool PhotonSelector::select( const std::vector<NtuplePhoton>& candidates, const 
 	selected.clear();
 	
 	for( auto& pho : candidates ) {
-		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) 
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) && !pho.hasPixelSeed  
 			&& deltaR(pho.eta,pho.phi,el0.eta,el0.phi) > 0.4 
 			&& deltaR(pho.eta,pho.phi,el1.eta,el1.phi) > 0.4 ) selected.push_back(&pho);
 	} 
@@ -336,7 +445,7 @@ bool PhotonSelector::select( const std::vector<NtuplePhoton>& candidates, const 
 	selected.clear();
 	
 	for( auto& pho : candidates ) {
-		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) 
+		if( acceptance(pho,ptCut,etaCut) && excludeECALGap(pho) && cutBasedWPLoose(pho,true) && !pho.hasPixelSeed  
 			&& deltaR(pho.eta,pho.phi,mu0.eta,mu0.phi) > 0.4 
 			&& deltaR(pho.eta,pho.phi,mu1.eta,mu1.phi) > 0.4 ) selected.push_back(&pho);
 	} 
@@ -559,16 +668,16 @@ bool modifiedHEEP(const NtupleElectron& el, const NtupleEvent& ev) {
 bool cutBasedWPLoose(const NtuplePhoton& pho, const bool& isZG) {
     if( fabs(pho.eta) <= 1.479 ) { // Barrel
         if ( pho.HoverE < 0.0597 && pho.Full5x5_SigmaIEtaIEta < 0.01031 ) {
-        	if(isZG) return ( pho.ChIso < 2.5 && !pho.hasPixelSeed );
+        	if(isZG) return ( pho.ChIso < 2.5 );
         	//if(isZG) return ( pho.ChIso < 2.5 && pho.passElectronVeto );
-        	else return ( pho.ChIso < 1.295 && pho.NhIsoWithEA < 10.910 + 0.0148 * pho.pt + 0.000017 * pho.pt * pho.pt && pho.PhIsoWithEA < 3.630 + 0.0047 * pho.pt );
+        	else return ( pho.ChIsoWithEA < 1.295 && pho.NhIsoWithEA < 10.910 + 0.0148 * pho.pt + 0.000017 * pho.pt * pho.pt && pho.PhIsoWithEA < 3.630 + 0.0047 * pho.pt );
     	}
     }
     else { // Endcap
         if( pho.HoverE < 0.0481 && pho.Full5x5_SigmaIEtaIEta < 0.03013 ){
-            if(isZG) return ( pho.ChIso < 2.5 && !pho.hasPixelSeed );
+            if(isZG) return ( pho.ChIso < 2.5 );
             //if(isZG) return ( pho.ChIso < 2.5 && pho.passElectronVeto );
-            else return ( pho.ChIso < 1.011 && pho.NhIsoWithEA < 5.931 + 0.0163 * pho.pt + 0.000014 * pho.pt * pho.pt && pho.PhIsoWithEA < 6.641 + 0.0034 * pho.pt );
+            else return ( pho.ChIsoWithEA < 1.011 && pho.NhIsoWithEA < 5.931 + 0.0163 * pho.pt + 0.000014 * pho.pt * pho.pt && pho.PhIsoWithEA < 6.641 + 0.0034 * pho.pt );
         }
     }
     return false;

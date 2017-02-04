@@ -5,7 +5,7 @@
 class EventSelector {
 public:
 	EventSelector( const bool& _verbose );
-	EventSelector( const bool& _verbose, const double& _elPtCut, const double& _elExtraPtCut, const double& _elVetoPtCut, const double& _phoPtCut_ee, const double& _muPtCut, const double& _muExtraPtCut, const double& _muVetoPtCut, const double& _phoPtCut_mm, const double& _lowerMassCut, const double& _upperMassCut, const double& _phoPtOverMZG, const bool& _multiPho );
+	EventSelector( const bool& _verbose, const double& _elPtCut, const double& _elExtraPtCut, const double& _elVetoPtCut, const double& _phoPtCut_ee, const double& _muPtCut, const double& _muExtraPtCut, const double& _muVetoPtCut, const double& _phoPtCut_mm, const double& _lowerMassCut, const double& _upperMassCut, const double& _phoPtOverMZG, const bool& _multiPho, const double& _norm );
 	~EventSelector();
 	void setEvent( NtupleEvent* _event );
 	void selectICHEP16();
@@ -17,7 +17,9 @@ public:
 	bool matchedAcceptance();
 	int run;
 	int lumi;
+	unsigned long long eventN;
 	UInt_t eventNum;
+	double aMCNLO;
 	double weight;
 	double genWeight;
 	int nPU;
@@ -47,7 +49,10 @@ public:
 	const double upperMassCut;
 	const double phoPtOverMZG;
 	const bool multiPho;
+	const double norm;
 
 };
+
+double PUReweight(const int& nPU);
 
 #endif

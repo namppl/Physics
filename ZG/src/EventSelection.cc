@@ -3,11 +3,11 @@
 #include <iostream>
 #include <assert.h>
 
-EventSelector::EventSelector( const bool& _verbose): verbose{_verbose}, elPtCut{65.}, elExtraPtCut{10.}, elVetoPtCut{10.}, phoPtCut_ee{65.}, muPtCut{26.}, muExtraPtCut{10.}, muVetoPtCut{10.}, phoPtCut_mm{40.}, lowerMassCut{50}, upperMassCut{130}, phoPtOverMZG{40./150.}, multiPho{false}
+EventSelector::EventSelector( const bool& _verbose): verbose{_verbose}, elPtCut{65.}, elExtraPtCut{10.}, elVetoPtCut{10.}, phoPtCut_ee{65.}, muPtCut{26.}, muExtraPtCut{10.}, muVetoPtCut{10.}, phoPtCut_mm{40.}, lowerMassCut{50}, upperMassCut{130}, phoPtOverMZG{40./150.}, multiPho{false}, norm{-1.0}
 {}
 
-EventSelector::EventSelector( const bool& _verbose, const double& _elPtCut, const double& _elExtraPtCut, const double& _elVetoPtCut, const double& _phoPtCut_ee, const double& _muPtCut, const double& _muExtraPtCut, const double& _muVetoPtCut, const double& _phoPtCut_mm, const double& _lowerMassCut, const double& _upperMassCut, const double& _phoPtOverMZG, const bool& _multiPho ):
-verbose{_verbose}, elPtCut{_elPtCut}, elExtraPtCut{_elExtraPtCut}, elVetoPtCut{_elVetoPtCut}, phoPtCut_ee{_phoPtCut_ee}, muPtCut{_muPtCut}, muExtraPtCut{_muExtraPtCut}, muVetoPtCut{_muVetoPtCut}, phoPtCut_mm{_phoPtCut_mm}, lowerMassCut{_lowerMassCut}, upperMassCut{_upperMassCut}, phoPtOverMZG{_phoPtOverMZG}, multiPho{_multiPho}
+EventSelector::EventSelector( const bool& _verbose, const double& _elPtCut, const double& _elExtraPtCut, const double& _elVetoPtCut, const double& _phoPtCut_ee, const double& _muPtCut, const double& _muExtraPtCut, const double& _muVetoPtCut, const double& _phoPtCut_mm, const double& _lowerMassCut, const double& _upperMassCut, const double& _phoPtOverMZG, const bool& _multiPho, const double& _norm ):
+verbose{_verbose}, elPtCut{_elPtCut}, elExtraPtCut{_elExtraPtCut}, elVetoPtCut{_elVetoPtCut}, phoPtCut_ee{_phoPtCut_ee}, muPtCut{_muPtCut}, muExtraPtCut{_muExtraPtCut}, muVetoPtCut{_muVetoPtCut}, phoPtCut_mm{_phoPtCut_mm}, lowerMassCut{_lowerMassCut}, upperMassCut{_upperMassCut}, phoPtOverMZG{_phoPtOverMZG}, multiPho{_multiPho}, norm{_norm}
 {
 	std::cout << std::endl;
 	std::cout << ":: selection rule ::" << std::endl;
@@ -37,7 +37,13 @@ void EventSelector::selectICHEP16() {
 	
 	run = event->run;
 	lumi = event->lumi;
+	eventN = event->event;
 	eventNum = event->event;
+
+	// std::cout << "event: " << event->event << std::endl;
+	// std::cout << "eventN: " << eventN << std::endl;
+	// std::cout << "eventNum: " << eventNum << std::endl;
+
 	weight = event->weight;	
 	nPU = event->nPU;
 	nVert = event->nVertices;
@@ -71,47 +77,90 @@ void EventSelector::selectMoriond17(const int& option) {
 	
 	run = event->run;
 	lumi = event->lumi;
+	eventN = event->event;
 	eventNum = event->event;
-	weight = event->weight;	
+	// std::cout << "event: " << event->event << std::endl;
+    // std::cout << "eventN: " << eventN << std::endl;
+    // std::cout << "eventNum: " << eventNum << std::endl;
 	nPU = event->nPU;
+	aMCNLO = event->weight;
+	weight = event->weight;
+	if( norm > 0.0 ) weight *= PUReweight(nPU) * norm;	
 	nVert = event->nVertices;
 
 	muon = false;
 	electron = false;
 	
 	switch(option) {
-		case 0: 
+		case 0:
 			ee->select(event->electrons);
 			break;
-		case 1: 
-			ee->selectHEEP(event->electrons, *event, true);
+		case 1:
+			ee->selectEE(event->electrons);
 			break;
-		case 2: 
-			ee->selectHEEP(event->electrons, *event, false);
+		case 5:
+			ee->select(event->electrons);
 			break;
-		case 3: 
-			ee->selectModifiedHEEP(event->electrons, *event);
+		case 6:
+			ee->selectEE(event->electrons);
 			break;
-		case 4: 
-			ee->selectHoverE(event->electrons);
+		case 7:
+			ee->selectEE(event->electrons);
 			break;
-		case 5: 
+		case 8:
 			ee->select(event->electrons);
 			break;
 	}
-	mm->selectMoriond17(event->muons);
+	
+	if(option < 8) mm->selectMoriond17(event->muons);
+	else mm->selectICHEP16(event->muons); 
 
-	if(option!=5) {
-		gamma_ee->select(event->photons);
-		gamma_mm->select(event->photons);
+	if( ee->passSelection() && mm->nMuons()==0 ) {
+		switch(option) {
+			case 0:
+				gamma_ee->select(event->photons);
+				break;
+			case 1:
+				gamma_ee->selectEE(event->photons);
+				break;
+			case 5:
+				gamma_ee->selectMVA(event->photons);
+				break;
+			case 6:
+				gamma_ee->selectMVAEE(event->photons);
+				break;
+			case 7:
+				gamma_ee->selectMVAEE(event->photons, ee->at(0), ee->at(1));
+				break;
+			case 8:
+				gamma_ee->selectMVA(event->photons, ee->at(0), ee->at(1));
+				break;
+		}
+		if( gamma_ee->passSelection() ) selectDielGamma();
 	}
-	else {
-		gamma_ee->selectMVA(event->photons);
-		gamma_mm->selectMVA(event->photons);
+	else if( mm->passSelection() && ee->nElectrons()==0 ) {
+		switch(option) {
+			case 0:
+				gamma_mm->select(event->photons);
+				break;
+			case 1:
+				gamma_mm->select(event->photons);
+				break;
+			case 5:
+				gamma_mm->selectMVA(event->photons);
+				break;
+			case 6:
+				gamma_mm->selectMVA(event->photons);
+				break;
+			case 7:
+				gamma_mm->selectMVA(event->photons, mm->at(0), mm->at(1));
+				break;
+			case 8:
+				gamma_mm->selectMVA(event->photons, mm->at(0), mm->at(1));
+				break;
+		}
+		if( gamma_mm->passSelection() ) selectDimuGamma();
 	}
-
-	if( ee->passSelection() && mm->nMuons()==0 && gamma_ee->passSelection() ) selectDielGamma();
-	else if( mm->passSelection() && ee->nElectrons()==0 && gamma_mm->passSelection() ) selectDimuGamma();
 
 }
 
@@ -321,4 +370,11 @@ bool EventSelector::matchedAcceptance() {
 
 	return false;
 
+}
+
+double PUReweight(const int& nPU) {
+    int index = nPU-1;
+	double ReReco_Moriond17_65[] = {0.385248, 1.23178, 1.2836, 1.14691, 1.30067, 1.3103, 0.978232, 0.886271, 1.24131, 1.54662, 1.7043, 1.70436, 1.63711, 1.62373, 1.60381, 1.52131, 1.42025, 1.3345, 1.25322, 1.1859, 1.13768, 1.09294, 1.05956, 1.03098, 1.00485, 0.984915, 0.968839, 0.949522, 0.929222, 0.903614, 0.853359, 0.803061, 0.733009, 0.657447, 0.574058, 0.486491, 0.395985, 0.310427, 0.232546, 0.167488, 0.112897, 0.0725097, 0.0448537, 0.0264411, 0.0152595, 0.0084306, 0.00440492, 0.00231261, 0.00118615, 0.000622782, 0.000345365, 0.0002281, 0.0001919, 0.000200888, 0.000262581, 0.000372703, 0.000517395, 0.000743546, 0.00108736, 0.00150363, 0.00238769, 0.00307876, 0.00354461, 0.00369242, 0.00392163, 0.00360387, 0.00314731, 0.00267078, 0.00233614, 0.00198402, 0.00166782, 0.0013905, 0.00115199, 0.000955533, 0.000777455};
+
+    return (index < 75) ? ReReco_Moriond17_65[index] : 1. ;
 }

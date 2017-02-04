@@ -10,9 +10,11 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 
 	recoTree->Branch("run",&run);
 	recoTree->Branch("lumi",&lumi);
+	recoTree->Branch("eventN",&eventN);
 	recoTree->Branch("event",&eventNum);
 	recoTree->Branch("leptType",&leptType);
 	recoTree->Branch("weight",&weight);
+	recoTree->Branch("aMCNLO",&aMCNLO);
 	recoTree->Branch("nPU",&nPU);
 	recoTree->Branch("nVert",&nVert);
 	recoTree->Branch("genmass",&genmass);
@@ -71,6 +73,7 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 	recoTree->Branch("gamma_iso",&gamma_iso);
 	recoTree->Branch("gamma_HoverE",&gamma_HoverE);
 	recoTree->Branch("gamma_Full5x5_SigmaIEtaIEta",&gamma_Full5x5_SigmaIEtaIEta);
+	recoTree->Branch("gamma_mvaValue",&gamma_mvaValue);
 
 	recoTree->Branch("z_pt",&z_pt);
 	recoTree->Branch("z_eta",&z_eta);
@@ -111,7 +114,9 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 
 	run = selector.run;
 	lumi = selector.lumi;
+	eventN = selector.eventN;
 	eventNum = selector.eventNum;
+	aMCNLO = selector.aMCNLO;	
 	weight = selector.weight;	
 	nPU = selector.nPU;
 	nVert = selector.nVert;
@@ -165,6 +170,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		gamma_iso = pho.ChIso;
 		gamma_HoverE = pho.HoverE;
 		gamma_Full5x5_SigmaIEtaIEta = pho.Full5x5_SigmaIEtaIEta;
+		gamma_mvaValue = pho.mvaValue;
 	
 		z_pt = z.Pt();
 		z_eta = z.Eta();
@@ -227,6 +233,7 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		gamma_iso = pho.ChIso;
 		gamma_HoverE = pho.HoverE;
 		gamma_Full5x5_SigmaIEtaIEta = pho.Full5x5_SigmaIEtaIEta;
+		gamma_mvaValue = pho.mvaValue;
 
 		z_pt = z.Pt();
 		z_eta = z.Eta();

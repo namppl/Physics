@@ -15,8 +15,10 @@ public:
 	
 	int run;
 	int lumi;
+	unsigned long long eventN;
 	UInt_t eventNum;
 	int leptType;
+	double aMCNLO;
 	double weight;
 	int nPU;
 	int nVert;
@@ -76,6 +78,7 @@ public:
 	double gamma_iso;
 	double gamma_HoverE;
 	double gamma_Full5x5_SigmaIEtaIEta;
+	double gamma_mvaValue;
 
 	double z_pt;
 	double z_eta;
