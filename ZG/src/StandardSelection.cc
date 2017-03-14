@@ -64,7 +64,15 @@ bool MuonSelector::selectMoriond17( const std::vector<NtupleMuon>& candidates ) 
 			if(mu->pt > extraPtCut) {
 				++extraPt;
 				if(mu->pt > ptCut) leadingMu = true;
-				if(highPtMuonID(*mu)) highPt = true;
+
+				if(highPtMuonID(*mu)) {
+					highPt = true;
+					// passHighPt.push_back(true);
+				}
+				// else passHighPt.push_back(false);
+
+				// if(looseMuonID(*mu)) passLoose.push_back(true);
+				// else passLoose.push_back(false);
 			}
 		}
 	} 
@@ -487,8 +495,16 @@ TLorentzVector momentum(const NtuplePhoton& pho, const double& mass){
 	return mom;
 }
 
-template<class T> bool acceptance(const T& particle, const double& ptCut, const double& etaCut) {
-	return ( particle.pt > ptCut && fabs(particle.eta) < etaCut );
+bool acceptance(const NtupleMuon& muon, const double& ptCut, const double& etaCut) {
+	return ( muon.pt > ptCut && fabs(muon.eta) < etaCut );
+}
+
+bool acceptance(const NtupleElectron& electron, const double& ptCut, const double& etaCut) {
+	return ( electron.pt > ptCut && fabs(electron.etaSC) < etaCut );
+}
+
+bool acceptance(const NtuplePhoton& photon, const double& ptCut, const double& etaCut) {
+	return ( photon.pt > ptCut && fabs(photon.etaSC) < etaCut );
 }
 
 template<class T> bool excludeECALGap(const T& particle) {

@@ -19,6 +19,13 @@ void TreeFiller::setTree(TTree* _recoTree, TTree* _genTree) {
 	recoTree->Branch("nVert",&nVert);
 	recoTree->Branch("genmass",&genmass);
 
+	recoTree->Branch("Flag_badMuons",&Flag_badMuons);
+	recoTree->Branch("Flag_duplicatedMuons",&Flag_duplicatedMuons);
+	recoTree->Branch("Flag_noBadMuons",&Flag_noBadMuons);
+
+	recoTree->Branch("Flag_dupECALClusters",&Flag_dupECALClusters);
+	recoTree->Branch("Flag_noHitsNotReplaced",&Flag_noHitsNotReplaced);
+
 	recoTree->Branch("lept0_pt",&lept0_pt);
 	recoTree->Branch("lept0_eta",&lept0_eta);
 	recoTree->Branch("lept0_phi",&lept0_phi);
@@ -120,6 +127,13 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 	weight = selector.weight;	
 	nPU = selector.nPU;
 	nVert = selector.nVert;
+
+	Flag_badMuons = selector.Flag_badMuons;
+	Flag_duplicatedMuons = selector.Flag_duplicatedMuons;
+	Flag_noBadMuons = selector.Flag_noBadMuons;
+
+	Flag_dupECALClusters = selector.Flag_dupECALClusters;
+	Flag_noHitsNotReplaced = selector.Flag_noHitsNotReplaced;
 
 	if(selector.electron) {
 		leptType = 11;
@@ -224,6 +238,8 @@ void TreeFiller::fillVariables(EventSelector& selector) {
 		lept1_muonBestTrack_dxyVTX = mu2.dxyVTX;
 		lept1_muonBestTrack_dzVTX = mu2.dzVTX;
 		lept1_ptError = mu2.muonBestTrack_ptError;
+
+		// std::cout << mu1.pt << " : " << mu2.pt << std::endl;
 
 		deltaR_lept = deltaR(mu1.eta,mu1.phi,mu2.eta,mu2.phi); 
 

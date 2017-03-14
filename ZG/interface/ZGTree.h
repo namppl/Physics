@@ -24,6 +24,13 @@ public:
 	int nVert;
 	double genmass;
 
+	bool Flag_badMuons;
+	bool Flag_duplicatedMuons;
+	bool Flag_noBadMuons;
+
+	bool Flag_dupECALClusters;
+	bool Flag_noHitsNotReplaced;
+	
 	double lept0_pt;
 	double lept0_eta;
 	double lept0_phi;

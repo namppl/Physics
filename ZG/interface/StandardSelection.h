@@ -8,7 +8,9 @@
 TLorentzVector momentum(const NtupleMuon& mu, const double& mass);
 TLorentzVector momentum(const NtupleElectron& el, const double& mass);
 TLorentzVector momentum(const NtuplePhoton& pho, const double& mass);
-template<class T> bool acceptance(const T& particle, const double& ptCut, const double& etaCut);
+bool acceptance(const NtupleMuon& muon, const double& ptCut, const double& etaCut);
+bool acceptance(const NtupleElectron& electron, const double& ptCut, const double& etaCut);
+bool acceptance(const NtuplePhoton& photon, const double& ptCut, const double& etaCut);
 template<class T> bool excludeECALGap(const T& particle);
 template<class T> bool miniIsolation(const T& particle, const double& iso);
 bool trackerIsolation(const NtupleMuon& mu, const double& iso);

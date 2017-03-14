@@ -2,8 +2,9 @@
 #define MuonMomentumCorrection_H
 
 #include "Physics/NtupleMaker/interface/NtupleClasses.h"
-#include "Physics/Correction/interface/rochcor2016.h"
+#include "Physics/Rochester/interface/RoccoR.h"
+// #include "Physics/Correction/interface/rochcor2016.h"
 
-void MuonMomentumCorrection( std::vector<NtupleMuon>& muons, rochcor2016* rmcor, const bool isData );
+void MuonMomentumCorrection( std::vector<NtupleMuon>& muons, RoccoR& rc, const bool& isData, const bool& doSystematics );
 
 #endif
